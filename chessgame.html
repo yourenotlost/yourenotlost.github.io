@@ -1,0 +1,295 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <title>Chess Opening Quiz</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <style>
+    body {
+      font-family: system-ui, -apple-system, BlinkMacSystemFont, sans-serif;
+      background: linear-gradient(135deg, #1e3a8a, #9333ea, #ec4899);
+      color: #f8fafc;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      min-height: 100vh;
+      margin: 0;
+    }
+
+    .card {
+      background: rgba(2, 6, 23, 0.9);
+      border-radius: 18px;
+      padding: 26px;
+      max-width: 440px;
+      width: 100%;
+      box-shadow: 0 25px 50px rgba(0, 0, 0, 0.5);
+      text-align: center;
+    }
+
+    h1 {
+      margin-bottom: 12px;
+    }
+
+    p {
+      margin: 10px 0;
+    }
+
+    img {
+      width: 100%;
+      border-radius: 12px;
+      margin-bottom: 16px;
+    }
+
+    .options {
+      display: grid;
+      gap: 8px;
+      text-align: left;
+    }
+
+    button {
+      padding: 10px 12px;
+      border-radius: 12px;
+      border: none;
+      cursor: pointer;
+      font-weight: 600;
+      transition: transform 0.1s, opacity 0.1s;
+    }
+
+    button:hover {
+      transform: translateY(-1px);
+      opacity: 0.95;
+    }
+
+    .primary {
+      background: #22d3ee;
+      color: #020617;
+    }
+
+    .secondary {
+      background: #a78bfa;
+      color: #020617;
+    }
+
+    .option {
+      background: #020617;
+      color: #f8fafc;
+      border: 1px solid #475569;
+    }
+
+    .correct {
+      border-color: #22c55e;
+      background: rgba(34, 197, 94, 0.2);
+    }
+
+    .wrong {
+      border-color: #ef4444;
+      background: rgba(239, 68, 68, 0.2);
+    }
+
+    .hidden {
+      display: none;
+    }
+
+    .footer {
+      margin-top: 18px;
+      font-size: 0.75rem;
+      opacity: 0.7;
+    }
+
+    ul {
+      text-align: left;
+      padding-left: 20px;
+    }
+
+    li {
+      cursor: pointer;
+      margin: 6px 0;
+      color: #93c5fd;
+    }
+
+    li:hover {
+      text-decoration: underline;
+    }
+  </style>
+</head>
+<body>
+  <div class="card">
+
+    <!-- HOME -->
+    <div id="home">
+      <h1>♟️ Chess Opening Quiz</h1>
+      <p>Test your opening knowledge, learn some history,<nobr>and discover weird chess facts.</nobr></p>
+      <p><em>Warning: may cause sudden urges to play blitz.</em></p>
+      <button class="primary" onclick="startQuiz()">Start Quiz</button>
+      <br><br>
+      <button class="secondary" onclick="showOpenings()">Opening History</button>
+      <br><br>
+      <button class="secondary" onclick="showFacts()">Random Chess Facts</button>
+    </div>
+
+    <!-- QUIZ -->
+    <div id="quiz" class="hidden">
+      <h1>Which opening is this?</h1>
+      <img id="positionImage" />
+      <div class="options" id="options"></div>
+      <p id="answer"></p>
+      <button class="primary hidden" id="nextBtn">Next</button>
+    </div>
+
+    <!-- END -->
+    <div id="end" class="hidden">
+      <h1>🎉 Well done!</h1>
+      <p id="scoreText"></p>
+      <p id="endMessage"></p>
+      <button class="primary" onclick="startQuiz()">Play Again</button>
+      <br><br>
+      <button class="secondary" onclick="goHome()">Back to Menu</button>
+    </div>
+
+    <!-- OPENINGS -->
+    <div id="openings" class="hidden">
+      <h1>Opening History</h1>
+      <p>Click an opening to learn its origins:</p>
+      <ul id="openingList"></ul>
+      <p id="openingInfo"></p>
+      <button class="secondary" onclick="goHome()">Back</button>
+    </div>
+
+    <!-- FACTS -->
+    <div id="facts" class="hidden">
+      <h1>♜ Random Chess Fact</h1>
+      <p id="factText"></p>
+      <button class="primary" onclick="newFact()">Another one</button>
+      <br><br>
+      <button class="secondary" onclick="goHome()">Back</button>
+    </div>
+
+    <div class="footer">Made by fred</div>
+  </div>
+
+<script>
+  const screens = ["home", "quiz", "end", "openings", "facts"];
+  function show(id) {
+    screens.forEach(s => document.getElementById(s).classList.add("hidden"));
+    document.getElementById(id).classList.remove("hidden");
+  }
+
+  function goHome() { show("home"); }
+
+  /* QUIZ DATA */
+  const quizData = [
+    { image: "alapin sicilian.png", options: ["Alapin Sicilian", "French Defence", "Benko Gambit", "Dragon Sicilian"], correct: "Alapin Sicilian" },
+    { image: "caro kann.png", options: ["French Defence", "Caro-Kann", "Taimanov Sicilian", "Scandinavian Defence"], correct: "Caro-Kann" },
+    { image: "catalan.png", options: ["Slav Defence", "Queen's Gambit Declined", "Catalan Opening", "Nimzo-Indian"], correct: "Catalan Opening" },
+    { image: "englund gambit.png", options: ["Catalan Opening", "Queen's Gambit Declined", "London System", "Englund Gambit"], correct: "Englund Gambit" },
+    { image: "french defence.png", options: ["Sicilian Najdorf", "Caro-Kann", "Scandinavian Defence", "French Defence"], correct: "French Defence" }
+  ];
+
+  let current = 0;
+  let score = 0;
+
+  function startQuiz() {
+    current = 0;
+    score = 0;
+    show("quiz");
+    loadQuestion();
+  }
+
+  function loadQuestion() {
+    const q = quizData[current];
+    document.getElementById("positionImage").src = q.image;
+    const optionsDiv = document.getElementById("options");
+    optionsDiv.innerHTML = "";
+    document.getElementById("answer").textContent = "";
+    document.getElementById("nextBtn").classList.add("hidden");
+
+    q.options.forEach(opt => {
+      const b = document.createElement("button");
+      b.className = "option";
+      b.textContent = opt;
+      b.onclick = () => selectAnswer(b, opt);
+      optionsDiv.appendChild(b);
+    });
+  }
+
+  function selectAnswer(btn, selected) {
+    const q = quizData[current];
+    document.querySelectorAll(".option").forEach(b => {
+      b.disabled = true;
+      if (b.textContent === q.correct) b.classList.add("correct");
+    });
+
+    if (selected === q.correct) {
+      score++;
+      document.getElementById("answer").textContent = "Correct! Nice one.";
+    } else {
+      btn.classList.add("wrong");
+      document.getElementById("answer").textContent = `Correct answer: ${q.correct}`;
+    }
+
+    document.getElementById("nextBtn").classList.remove("hidden");
+  }
+
+  document.getElementById("nextBtn").onclick = () => {
+    current++;
+    if (current < quizData.length) loadQuestion();
+    else endQuiz();
+  };
+
+  function endQuiz() {
+    show("end");
+    document.getElementById("scoreText").textContent = `You scored ${score} / ${quizData.length}`;
+
+    let msg = "Good effort!";
+    if (score === quizData.length) msg = "Perfect score. Absolute opening nerd.";
+    else if (score >= quizData.length * 0.7) msg = "Very strong! Your theory is solid.";
+    else if (score <= 2) msg = "We go again. Every GM started somewhere.";
+
+    document.getElementById("endMessage").textContent = msg;
+  }
+
+  /* OPENING HISTORY */
+  const openingInfo = {
+    "Caro-Kann": "Named after Horatio Caro and Marcus Kann, popularised in the 1880s.",
+    "French Defence": "Recorded as early as the 15th century, famously used in a correspondence match in 1834.",
+    "Sicilian Defence": "One of the oldest openings, analysed in Italian manuscripts in the 16th century.",
+    "Catalan Opening": "Popularised by players from Catalonia in the 1920s.",
+    "London System": "Developed in the early 20th century and used in the London tournaments."
+  };
+
+  function showOpenings() {
+    show("openings");
+    const list = document.getElementById("openingList");
+    const info = document.getElementById("openingInfo");
+    list.innerHTML = "";
+    info.textContent = "";
+
+    Object.keys(openingInfo).forEach(name => {
+      const li = document.createElement("li");
+      li.textContent = name;
+      li.onclick = () => info.textContent = openingInfo[name];
+      list.appendChild(li);
+    });
+  }
+
+  /* FUN FACTS */
+  const facts = [
+    "The longest official chess game lasted 269 moves.",
+    "The number of possible chess games is greater than the number of atoms in the observable universe.",
+    "The word 'checkmate' comes from the Persian 'shah mat'.",
+    "Magnus Carlsen became world champion at 22.",
+    "The first chess computer was created in the 1950s."
+  ];
+
+  function showFacts() {
+    show("facts");
+    newFact();
+  }
+
+  function newFact() {
+    const f = facts[Math.floor(Math.random() * facts.length)];
+    document.getElementById("factText").textContent = f;
+  }
+</script>
+</body>
+</html>
