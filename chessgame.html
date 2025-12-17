@@ -190,7 +190,7 @@
       <button class="secondary" onclick="goHome()">Back</button>
     </div>
 
-    <div class="footer">Made by fred</div>
+    <div class="footer">Made by Frederick Fairhurst</div>
   </div>
 
 <script>
@@ -339,7 +339,7 @@
     factText.textContent = facts[Math.floor(Math.random() * facts.length)];
   }
 
-  // ----- STOCKFISH GAME -----
+  // ----- STOCKFISH -----
   let board = null;
   let game = new Chess();
   let engine = new Worker("stockfish.js");
@@ -377,7 +377,6 @@
       to: target,
       promotion: "q"
     });
-
     if (move === null) return "snapback";
     updateStatus();
     setTimeout(makeEngineMove, 200);
@@ -389,11 +388,10 @@
   }
 
   function updateStatus() {
-    let status = "";
-    if (game.in_checkmate()) status = "Checkmate.";
-    else if (game.in_draw()) status = "Draw.";
-    else status = game.turn() === "w" ? "Your move." : "Stockfish is thinking...";
-    gameStatus.textContent = status;
+    gameStatus.textContent =
+      game.in_checkmate() ? "Checkmate."
+      : game.in_draw() ? "Draw."
+      : game.turn() === "w" ? "Your move." : "Stockfish is thinking...";
   }
 
   function resetGame() {
