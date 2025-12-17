@@ -5,6 +5,11 @@
   <title>Chess Opening Quiz</title>
   <meta name="viewport" content="width=device-width, initial-scale=1" />
 
+  <!-- CHESS LIBS -->
+  <link rel="stylesheet" href="https://unpkg.com/chessboardjs@1.0.0/www/css/chessboard.css" />
+  <script src="https://unpkg.com/chess.js@1.0.0/chess.min.js"></script>
+  <script src="https://unpkg.com/chessboardjs@1.0.0/www/js/chessboard.js"></script>
+
   <style>
     :root {
       --bg-gradient: linear-gradient(135deg, #1e3a8a, #9333ea, #ec4899);
@@ -135,6 +140,8 @@
       <button class="secondary" onclick="showOpenings()">Opening History</button>
       <br><br>
       <button class="secondary" onclick="showFacts()">Random Chess Facts</button>
+      <br><br>
+      <button class="secondary" onclick="startGame()">Play vs Computer</button>
     </div>
 
     <!-- QUIZ -->
@@ -173,11 +180,21 @@
       <button class="secondary" onclick="goHome()">Back</button>
     </div>
 
+    <!-- GAME -->
+    <div id="game" class="hidden">
+      <h1>Play vs Stockfish</h1>
+      <div id="board" style="width:100%; max-width:360px; margin:0 auto;"></div>
+      <p id="gameStatus"></p>
+      <button class="primary" onclick="resetGame()">New Game</button>
+      <br><br>
+      <button class="secondary" onclick="goHome()">Back</button>
+    </div>
+
     <div class="footer">Made by fred</div>
   </div>
 
 <script>
-  const screens = ["home", "quiz", "end", "openings", "facts"];
+  const screens = ["home", "quiz", "end", "openings", "facts", "game"];
   function show(id) {
     screens.forEach(s => document.getElementById(s).classList.add("hidden"));
     document.getElementById(id).classList.remove("hidden");
@@ -196,31 +213,22 @@
   const quizData = [
     { image: "alapin sicilian.png", correct: "Alapin Sicilian",
       options: ["Alapin Sicilian", "French Defence", "Benko Gambit", "Najdorf Sicilian"] },
-
     { image: "caro kann.png", correct: "Caro-Kann Defence",
       options: ["Caro-Kann Defence", "French Defence", "Scandinavian Defence", "Pirc Defence"] },
-
     { image: "catalan.png", correct: "Catalan Opening",
       options: ["Catalan Opening", "Slav Defence", "Nimzo-Indian", "Queen's Gambit Declined"] },
-
     { image: "englund gambit.png", correct: "Englund Gambit",
       options: ["Englund Gambit", "London System", "Budapest Gambit", "Queen's Gambit"] },
-
     { image: "french defence.png", correct: "French Defence",
       options: ["French Defence", "Caro-Kann Defence", "Scandinavian Defence", "Modern Defence"] },
-
     { image: "kings indian attack.png", correct: "King's Indian Attack",
       options: ["King's Indian Attack", "King's Indian Defence", "Pirc Defence", "English Opening"] },
-
     { image: "london system.png", correct: "London System",
       options: ["London System", "Colle System", "Catalan Opening", "Trompowsky Attack"] },
-
     { image: "modern scandinavian.png", correct: "Modern Scandinavian",
       options: ["Modern Scandinavian", "Classical Scandinavian", "Caro-Kann Defence", "Alekhine Defence"] },
-
     { image: "scandinavian.png", correct: "Scandinavian Defence",
       options: ["Scandinavian Defence", "French Defence", "Pirc Defence", "Alekhine Defence"] },
-
     { image: "two knights caro.png", correct: "Two Knights Caro-Kann",
       options: ["Two Knights Caro-Kann", "Advance Caro-Kann", "Fantasy Variation", "Panov Attack"] }
   ];
@@ -238,10 +246,8 @@
     settings = getSettings();
     score = 0;
     current = 0;
-
     questions = settings.shuffleQuestions ? shuffle(quizData) : [...quizData];
     questions = questions.slice(0, settings.count);
-
     show("quiz");
     loadQuestion();
   }
@@ -295,7 +301,7 @@
       : "Keep practicing.";
   }
 
-  const openingInfo = {
+  const openingInfoData = {
     "Alapin Sicilian": "Introduced by Semyon Alapin in the late 19th century.",
     "Caro-Kann Defence": "Named after Horatio Caro and Marcus Kann.",
     "Catalan Opening": "Popularised in elite tournaments in the 1920s.",
@@ -312,10 +318,10 @@
     show("openings");
     openingList.innerHTML = "";
     openingInfo.textContent = "";
-    for (const name in openingInfo) {
+    for (const name in openingInfoData) {
       const li = document.createElement("li");
       li.textContent = name;
-      li.onclick = () => openingInfo.textContent = openingInfo[name];
+      li.onclick = () => openingInfo.textContent = openingInfoData[name];
       openingList.appendChild(li);
     }
   }
@@ -331,6 +337,69 @@
   function showFacts() { show("facts"); newFact(); }
   function newFact() {
     factText.textContent = facts[Math.floor(Math.random() * facts.length)];
+  }
+
+  // ----- STOCKFISH GAME -----
+  let board = null;
+  let game = new Chess();
+  let engine = new Worker("stockfish.js");
+
+  engine.postMessage("uci");
+  engine.postMessage("isready");
+
+  engine.onmessage = function (e) {
+    if (e.data.startsWith("bestmove")) {
+      const move = e.data.split(" ")[1];
+      game.move({
+        from: move.substring(0, 2),
+        to: move.substring(2, 4),
+        promotion: "q"
+      });
+      board.position(game.fen());
+      updateStatus();
+    }
+  };
+
+  function startGame() {
+    show("game");
+    game.reset();
+    board = Chessboard("board", {
+      draggable: true,
+      position: "start",
+      onDrop: onDrop
+    });
+    updateStatus();
+  }
+
+  function onDrop(source, target) {
+    const move = game.move({
+      from: source,
+      to: target,
+      promotion: "q"
+    });
+
+    if (move === null) return "snapback";
+    updateStatus();
+    setTimeout(makeEngineMove, 200);
+  }
+
+  function makeEngineMove() {
+    engine.postMessage("position fen " + game.fen());
+    engine.postMessage("go depth 12");
+  }
+
+  function updateStatus() {
+    let status = "";
+    if (game.in_checkmate()) status = "Checkmate.";
+    else if (game.in_draw()) status = "Draw.";
+    else status = game.turn() === "w" ? "Your move." : "Stockfish is thinking...";
+    gameStatus.textContent = status;
+  }
+
+  function resetGame() {
+    game.reset();
+    board.start();
+    updateStatus();
   }
 </script>
 </body>
