@@ -241,37 +241,39 @@ function newFact(){ factText.textContent=facts[Math.floor(Math.random()*facts.le
 let board=null, game=new Chess(), engine=null;
 const gameStatus=document.getElementById("gameStatus");
 
-function startGame(){
-  show("game");
-  // delay board creation until visible
-  requestAnimationFrame(()=>{
-    requestAnimationFrame(()=>{
-      if(!engine){
-        engine=new Worker("stockfish.js");
-        engine.postMessage("uci");
-        engine.onmessage=e=>{
-          if(e.data.startsWith("bestmove") && !game.game_over()){
-            const m=e.data.split(" ")[1];
-            game.move({from:m.slice(0,2), to:m.slice(2,4), promotion:"q"});
-            board.position(game.fen());
-            updateStatus();
-          }
-        };
-      }
+function startGame() {
+    show("game"); // first show the div
 
-      game.reset();
-      if(board) board.destroy();
+    // Wait until the div is visible and has layout
+    setTimeout(() => {
+        game.reset();
+        if(board) board.destroy();
 
-      board=Chessboard("board",{
-        draggable:true,
-        position:"start",
-        onDrop:onDrop
-      });
+        board = Chessboard('board', {
+            draggable: true,
+            position: 'start',
+            onDrop: onDrop
+        });
 
-      updateStatus();
-    });
-  });
+        updateStatus();
+
+        // initialise engine if not already
+        if(!engine){
+            engine = new Worker('stockfish.js');
+            engine.postMessage('uci');
+            engine.onmessage = function(e){
+                if(e.data.startsWith("bestmove") && !game.game_over()){
+                    const move = e.data.split(" ")[1];
+                    game.move({from: move.substring(0,2), to: move.substring(2,4), promotion:'q'});
+                    board.position(game.fen());
+                    updateStatus();
+                }
+            };
+        }
+
+    }, 50); // 50ms delay ensures the div is visible
 }
+
 
 function onDrop(source,target){
   const move=game.move({from:source,to:target,promotion:"q"});
