@@ -2,15 +2,14 @@
 <html lang="en">
 <head>
   <meta charset="utf-8" />
-  <title>Chess Opening Quiz</title>
+  <title>Fred's Chess Page</title>
   <meta name="viewport" content="width=device-width, initial-scale=1" />
 
-  <!-- CHESS LIBS -->
+  <!-- Chessboard CSS -->
   <link rel="stylesheet" href="https://unpkg.com/chessboardjs@1.0.0/www/css/chessboard.css" />
 
-  <!-- REQUIRED: jQuery for chessboard.js -->
+  <!-- jQuery + Chess.js + Chessboard.js -->
   <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
-
   <script src="https://unpkg.com/chess.js@1.0.0/chess.min.js"></script>
   <script src="https://unpkg.com/chessboardjs@1.0.0/www/js/chessboard.js"></script>
 
@@ -27,7 +26,7 @@
     }
 
     body {
-      font-family: system-ui, -apple-system, BlinkMacSystemFont, sans-serif;
+      font-family: system-ui, sans-serif;
       background: var(--bg-gradient);
       color: var(--text-main);
       display: flex;
@@ -93,9 +92,7 @@
       background: rgba(239, 68, 68, 0.2);
     }
 
-    .hidden {
-      display: none;
-    }
+    .hidden { display: none; }
 
     .footer {
       margin-top: 18px;
@@ -117,292 +114,273 @@
 </head>
 
 <body>
-  <div class="card">
+<div class="card">
 
-    <!-- HOME -->
-    <div id="home">
-      <h1>Fred's Chess Opening Quiz</h1>
-      <p>
-        Identify chess openings from board positions.<br>
-        <strong>Maximum questions per quiz: 10</strong>
-      </p>
+  <!-- HOME -->
+  <div id="home">
+    <h1>Fred's Chess Opening Quiz</h1>
+    <p>
+      Identify chess openings from board positions.<br>
+      <strong>Maximum questions per quiz: 10</strong>
+    </p>
 
-      <div class="settings">
-        <strong>Quiz Settings</strong>
-        <label>
-          Questions per quiz:
-          <input type="number" id="questionCount" value="5" min="1" max="10">
-        </label>
-        <label><input type="checkbox" id="shuffleQuestions" checked> Shuffle questions</label>
-        <label><input type="checkbox" id="shuffleOptions" checked> Shuffle answer options</label>
-        <label><input type="checkbox" id="showFeedback" checked> Show feedback text</label>
-      </div>
-
-      <br>
-      <button class="primary" onclick="startQuiz()">Start Quiz</button>
-      <br><br>
-      <button class="secondary" onclick="showOpenings()">Opening History</button>
-      <br><br>
-      <button class="secondary" onclick="showFacts()">Random Chess Facts</button>
-      <br><br>
-      <button class="secondary" onclick="startGame()">Play vs Computer</button>
+    <div class="settings">
+      <strong>Quiz Settings</strong>
+      <label>
+        Questions per quiz:
+        <input type="number" id="questionCount" value="5" min="1" max="10">
+      </label>
+      <label><input type="checkbox" id="shuffleQuestions" checked> Shuffle questions</label>
+      <label><input type="checkbox" id="shuffleOptions" checked> Shuffle answer options</label>
+      <label><input type="checkbox" id="showFeedback" checked> Show feedback text</label>
     </div>
 
-    <!-- QUIZ -->
-    <div id="quiz" class="hidden">
-      <h1>Which opening is this?</h1>
-      <img id="positionImage" />
-      <div class="options" id="options"></div>
-      <p id="answer"></p>
-      <button class="primary hidden" id="nextBtn">Next</button>
-    </div>
-
-    <!-- END -->
-    <div id="end" class="hidden">
-      <h1>Quiz Complete</h1>
-      <p id="scoreText"></p>
-      <p id="endMessage"></p>
-      <button class="primary" onclick="startQuiz()">Play Again</button>
-      <br><br>
-      <button class="secondary" onclick="goHome()">Back to Menu</button>
-    </div>
-
-    <!-- OPENINGS -->
-    <div id="openings" class="hidden">
-      <h1>Opening History</h1>
-      <ul id="openingList"></ul>
-      <p id="openingInfo"></p>
-      <button class="secondary" onclick="goHome()">Back</button>
-    </div>
-
-    <!-- FACTS -->
-    <div id="facts" class="hidden">
-      <h1>Random Chess Fact</h1>
-      <p id="factText"></p>
-      <button class="primary" onclick="newFact()">Another fact</button>
-      <br><br>
-      <button class="secondary" onclick="goHome()">Back</button>
-    </div>
-
-    <!-- GAME -->
-    <div id="game" class="hidden">
-      <h1>Play vs Stockfish</h1>
-      <div id="board" style="width:100%; max-width:360px; margin:0 auto;"></div>
-      <p id="gameStatus"></p>
-      <button class="primary" onclick="resetGame()">New Game</button>
-      <br><br>
-      <button class="secondary" onclick="goHome()">Back</button>
-    </div>
-
-    <div class="footer">Made by Frederick Fairhurst</div>
+    <br>
+    <button class="primary" onclick="startQuiz()">Start Quiz</button>
+    <br><br>
+    <button class="secondary" onclick="showOpenings()">Opening History</button>
+    <br><br>
+    <button class="secondary" onclick="showFacts()">Random Chess Facts</button>
+    <br><br>
+    <button class="secondary" onclick="startGame()">Play vs Computer</button>
   </div>
 
+  <!-- QUIZ -->
+  <div id="quiz" class="hidden">
+    <h1>Which opening is this?</h1>
+    <img id="positionImage" />
+    <div class="options" id="options"></div>
+    <p id="answer"></p>
+    <button class="primary hidden" id="nextBtn">Next</button>
+  </div>
+
+  <!-- END -->
+  <div id="end" class="hidden">
+    <h1>Quiz Complete</h1>
+    <p id="scoreText"></p>
+    <p id="endMessage"></p>
+    <button class="primary" onclick="startQuiz()">Play Again</button>
+    <br><br>
+    <button class="secondary" onclick="goHome()">Back to Menu</button>
+  </div>
+
+  <!-- OPENINGS -->
+  <div id="openings" class="hidden">
+    <h1>Opening History</h1>
+    <ul id="openingList"></ul>
+    <p id="openingInfo"></p>
+    <button class="secondary" onclick="goHome()">Back</button>
+  </div>
+
+  <!-- FACTS -->
+  <div id="facts" class="hidden">
+    <h1>Random Chess Fact</h1>
+    <p id="factText"></p>
+    <button class="primary" onclick="newFact()">Another fact</button>
+    <br><br>
+    <button class="secondary" onclick="goHome()">Back</button>
+  </div>
+
+  <!-- GAME -->
+  <div id="game" class="hidden">
+    <h1>Play vs Stockfish</h1>
+    <div id="board" style="width:100%; max-width:360px; margin:0 auto;"></div>
+    <p id="gameStatus"></p>
+    <button class="primary" id="newGameBtn">New Game</button>
+    <br><br>
+    <button class="secondary" onclick="goHome()">Back</button>
+  </div>
+
+  <div class="footer">Made by Frederick Fairhurst</div>
+</div>
+
 <script>
-  const screens = ["home", "quiz", "end", "openings", "facts", "game"];
-  function show(id) {
-    screens.forEach(s => document.getElementById(s).classList.add("hidden"));
-    document.getElementById(id).classList.remove("hidden");
+/* ---------- NAV ---------- */
+const screens = ["home","quiz","end","openings","facts","game"];
+function show(id){
+  screens.forEach(s=>document.getElementById(s).classList.add("hidden"));
+  document.getElementById(id).classList.remove("hidden");
+}
+function goHome(){ show("home"); }
+
+/* ---------- QUIZ ---------- */
+function getSettings(){
+  return {
+    count: Math.min(10,parseInt(questionCount.value)),
+    shuffleQuestions: shuffleQuestions.checked,
+    shuffleOptions: shuffleOptions.checked,
+    showFeedback: showFeedback.checked
+  };
+}
+
+const quizData = [
+  { image:"alapin sicilian.png", correct:"Alapin Sicilian",
+    options:["Alapin Sicilian","French Defence","Benko Gambit","Najdorf Sicilian"]},
+  { image:"caro kann.png", correct:"Caro-Kann Defence",
+    options:["Caro-Kann Defence","French Defence","Scandinavian Defence","Pirc Defence"]},
+  { image:"catalan.png", correct:"Catalan Opening",
+    options:["Catalan Opening","Slav Defence","Nimzo-Indian","Queen's Gambit Declined"]},
+  { image:"englund gambit.png", correct:"Englund Gambit",
+    options:["Englund Gambit","London System","Budapest Gambit","Queen's Gambit"]},
+  { image:"french defence.png", correct:"French Defence",
+    options:["French Defence","Caro-Kann Defence","Scandinavian Defence","Modern Defence"]},
+  { image:"kings indian attack.png", correct:"King's Indian Attack",
+    options:["King's Indian Attack","King's Indian Defence","Pirc Defence","English Opening"]},
+  { image:"london system.png", correct:"London System",
+    options:["London System","Colle System","Catalan Opening","Trompowsky Attack"]},
+  { image:"modern scandinavian.png", correct:"Modern Scandinavian",
+    options:["Modern Scandinavian","Classical Scandinavian","Caro-Kann Defence","Alekhine Defence"]},
+  { image:"scandinavian.png", correct:"Scandinavian Defence",
+    options:["Scandinavian Defence","French Defence","Pirc Defence","Alekhine Defence"]},
+  { image:"two knights caro.png", correct:"Two Knights Caro-Kann",
+    options:["Two Knights Caro-Kann","Advance Caro-Kann","Fantasy Variation","Panov Attack"]}
+];
+
+let questions=[], current=0, score=0, settings={};
+const shuffle = a => [...a].sort(()=>Math.random()-0.5);
+
+function startQuiz(){
+  settings=getSettings();
+  score=0; current=0;
+  questions=(settings.shuffleQuestions?shuffle(quizData):quizData).slice(0,settings.count);
+  show("quiz");
+  loadQuestion();
+}
+
+function loadQuestion(){
+  const q=questions[current];
+  positionImage.src=q.image;
+  options.innerHTML="";
+  answer.textContent="";
+  nextBtn.classList.add("hidden");
+
+  (settings.shuffleOptions?shuffle(q.options):q.options).forEach(opt=>{
+    const b=document.createElement("button");
+    b.className="option";
+    b.textContent=opt;
+    b.onclick=()=>selectAnswer(b,opt);
+    options.appendChild(b);
+  });
+}
+
+function selectAnswer(btn,selected){
+  const q=questions[current];
+  document.querySelectorAll(".option").forEach(b=>{
+    b.disabled=true;
+    if(b.textContent===q.correct) b.classList.add("correct");
+  });
+  if(selected===q.correct) score++; else btn.classList.add("wrong");
+  if(settings.showFeedback)
+    answer.textContent = selected===q.correct ? "Correct." : `Correct answer: ${q.correct}`;
+  nextBtn.classList.remove("hidden");
+}
+
+nextBtn.onclick=()=>{
+  current++;
+  current<questions.length ? loadQuestion() : endQuiz();
+};
+
+function endQuiz(){
+  show("end");
+  scoreText.textContent=`You scored ${score} / ${questions.length}`;
+  endMessage.textContent=
+    score===questions.length?"Perfect score.":
+    score>=7?"Very solid opening knowledge.":
+    "Keep practicing.";
+}
+
+/* ---------- OPENINGS ---------- */
+const openingInfoData={
+  "Alapin Sicilian":"Introduced by Semyon Alapin.",
+  "Caro-Kann Defence":"Named after Caro and Kann.",
+  "Catalan Opening":"Popularised in the 1920s.",
+  "Englund Gambit":"A risky gambit.",
+  "French Defence":"One of the oldest openings.",
+  "King's Indian Attack":"Used by Fischer.",
+  "London System":"Popular system opening.",
+  "Modern Scandinavian":"Dynamic variation.",
+  "Scandinavian Defence":"Played since the 15th century.",
+  "Two Knights Caro-Kann":"Aggressive line."
+};
+
+function showOpenings(){
+  show("openings");
+  openingList.innerHTML="";
+  openingInfo.textContent="";
+  for(const name in openingInfoData){
+    const li=document.createElement("li");
+    li.textContent=name;
+    li.onclick=()=>openingInfo.textContent=openingInfoData[name];
+    openingList.appendChild(li);
   }
-  function goHome() { show("home"); }
+}
 
-  function getSettings() {
-    return {
-      count: Math.min(10, parseInt(document.getElementById("questionCount").value)),
-      shuffleQuestions: shuffleQuestions.checked,
-      shuffleOptions: shuffleOptions.checked,
-      showFeedback: showFeedback.checked
-    };
-  }
+/* ---------- FACTS ---------- */
+const facts=[
+  "The longest official game lasted 269 moves.",
+  "There are more chess games than atoms.",
+  "Checkmate comes from 'Shah Mat'.",
+  "Chess was once banned.",
+  "Chess engines date to the 1950s."
+];
 
-  const quizData = [
-    { image: "alapin sicilian.png", correct: "Alapin Sicilian",
-      options: ["Alapin Sicilian", "French Defence", "Benko Gambit", "Najdorf Sicilian"] },
-    { image: "caro kann.png", correct: "Caro-Kann Defence",
-      options: ["Caro-Kann Defence", "French Defence", "Scandinavian Defence", "Pirc Defence"] },
-    { image: "catalan.png", correct: "Catalan Opening",
-      options: ["Catalan Opening", "Slav Defence", "Nimzo-Indian", "Queen's Gambit Declined"] },
-    { image: "englund gambit.png", correct: "Englund Gambit",
-      options: ["Englund Gambit", "London System", "Budapest Gambit", "Queen's Gambit"] },
-    { image: "french defence.png", correct: "French Defence",
-      options: ["French Defence", "Caro-Kann Defence", "Scandinavian Defence", "Modern Defence"] },
-    { image: "kings indian attack.png", correct: "King's Indian Attack",
-      options: ["King's Indian Attack", "King's Indian Defence", "Pirc Defence", "English Opening"] },
-    { image: "london system.png", correct: "London System",
-      options: ["London System", "Colle System", "Catalan Opening", "Trompowsky Attack"] },
-    { image: "modern scandinavian.png", correct: "Modern Scandinavian",
-      options: ["Modern Scandinavian", "Classical Scandinavian", "Caro-Kann Defence", "Alekhine Defence"] },
-    { image: "scandinavian.png", correct: "Scandinavian Defence",
-      options: ["Scandinavian Defence", "French Defence", "Pirc Defence", "Alekhine Defence"] },
-    { image: "two knights caro.png", correct: "Two Knights Caro-Kann",
-      options: ["Two Knights Caro-Kann", "Advance Caro-Kann", "Fantasy Variation", "Panov Attack"] }
-  ];
+function showFacts(){ show("facts"); newFact(); }
+function newFact(){ factText.textContent=facts[Math.floor(Math.random()*facts.length)]; }
 
-  let questions = [];
-  let current = 0;
-  let score = 0;
-  let settings = {};
+/* ---------- STOCKFISH GAME (FIXED) ---------- */
+let board=null, game=new Chess(), engine=null;
+const gameStatus=document.getElementById("gameStatus");
 
-  function shuffle(arr) {
-    return [...arr].sort(() => Math.random() - 0.5);
-  }
+function startGame(){
+  show("game");
 
-  function startQuiz() {
-    settings = getSettings();
-    score = 0;
-    current = 0;
-    questions = settings.shuffleQuestions ? shuffle(quizData) : [...quizData];
-    questions = questions.slice(0, settings.count);
-    show("quiz");
-    loadQuestion();
-  }
-
-  function loadQuestion() {
-    const q = questions[current];
-    positionImage.src = q.image;
-    options.innerHTML = "";
-    answer.textContent = "";
-    nextBtn.classList.add("hidden");
-
-    (settings.shuffleOptions ? shuffle(q.options) : q.options).forEach(opt => {
-      const b = document.createElement("button");
-      b.className = "option";
-      b.textContent = opt;
-      b.onclick = () => selectAnswer(b, opt);
-      options.appendChild(b);
-    });
-  }
-
-  function selectAnswer(btn, selected) {
-    const q = questions[current];
-    document.querySelectorAll(".option").forEach(b => {
-      b.disabled = true;
-      if (b.textContent === q.correct) b.classList.add("correct");
-    });
-
-    if (selected === q.correct) score++;
-    else btn.classList.add("wrong");
-
-    if (settings.showFeedback) {
-      answer.textContent = selected === q.correct
-        ? "Correct."
-        : `Correct answer: ${q.correct}`;
+  setTimeout(()=>{   // 🔑 critical fix
+    if(!engine){
+      engine=new Worker("stockfish.js");
+      engine.postMessage("uci");
+      engine.onmessage=e=>{
+        if(e.data.startsWith("bestmove") && !game.game_over()){
+          const m=e.data.split(" ")[1];
+          game.move({from:m.slice(0,2),to:m.slice(2,4),promotion:"q"});
+          board.position(game.fen());
+          updateStatus();
+        }
+      };
     }
 
-    nextBtn.classList.remove("hidden");
-  }
-
-  nextBtn.onclick = () => {
-    current++;
-    current < questions.length ? loadQuestion() : endQuiz();
-  };
-
-  function endQuiz() {
-    show("end");
-    scoreText.textContent = `You scored ${score} / ${questions.length}`;
-    endMessage.textContent =
-      score === questions.length ? "Perfect score."
-      : score >= 7 ? "Very solid opening knowledge."
-      : "Keep practicing.";
-  }
-
-  const openingInfoData = {
-    "Alapin Sicilian": "Introduced by Semyon Alapin in the late 19th century.",
-    "Caro-Kann Defence": "Named after Horatio Caro and Marcus Kann.",
-    "Catalan Opening": "Popularised in elite tournaments in the 1920s.",
-    "Englund Gambit": "An unsound but tricky gambit from the early 20th century.",
-    "French Defence": "One of the oldest recorded chess openings.",
-    "King's Indian Attack": "A flexible setup used by Fischer.",
-    "London System": "System-based opening popular at all levels.",
-    "Modern Scandinavian": "A dynamic modern interpretation of 1...d5.",
-    "Scandinavian Defence": "Played since the 15th century.",
-    "Two Knights Caro-Kann": "An aggressive response to the Caro-Kann."
-  };
-
-  function showOpenings() {
-    show("openings");
-    openingList.innerHTML = "";
-    openingInfo.textContent = "";
-    for (const name in openingInfoData) {
-      const li = document.createElement("li");
-      li.textContent = name;
-      li.onclick = () => openingInfo.textContent = openingInfoData[name];
-      openingList.appendChild(li);
-    }
-  }
-
-  const facts = [
-    "The longest official chess game lasted 269 moves.",
-    "There are more possible chess games than atoms in the observable universe.",
-    "Checkmate comes from the Persian phrase 'Shah Mat'.",
-    "Chess was banned in some countries during the Middle Ages.",
-    "The first chess engines appeared in the 1950s."
-  ];
-
-  function showFacts() { show("facts"); newFact(); }
-  function newFact() {
-    factText.textContent = facts[Math.floor(Math.random() * facts.length)];
-  }
-
-  // ----- STOCKFISH -----
-  let board = null;
-  let game = new Chess();
-  let engine = new Worker("stockfish.js");
-
-  engine.postMessage("uci");
-  engine.postMessage("isready");
-
-  engine.onmessage = function (e) {
-    if (e.data.startsWith("bestmove")) {
-      const move = e.data.split(" ")[1];
-      game.move({
-        from: move.substring(0, 2),
-        to: move.substring(2, 4),
-        promotion: "q"
-      });
-      board.position(game.fen());
-      updateStatus();
-    }
-  };
-
-  function startGame() {
-    show("game");
     game.reset();
-    board = Chessboard("board", {
-      draggable: true,
-      position: "start",
-      onDrop: onDrop
-    });
+    if(board) board.destroy();
+
+    board=Chessboard("board",{draggable:true,position:"start",onDrop});
     updateStatus();
-  }
+  },0);
+}
 
-  function onDrop(source, target) {
-    const move = game.move({
-      from: source,
-      to: target,
-      promotion: "q"
-    });
-    if (move === null) return "snapback";
-    updateStatus();
-    setTimeout(makeEngineMove, 200);
-  }
+function onDrop(source,target){
+  const move=game.move({from:source,to:target,promotion:"q"});
+  if(move===null) return "snapback";
+  updateStatus();
+  setTimeout(makeEngineMove,200);
+}
 
-  function makeEngineMove() {
-    engine.postMessage("position fen " + game.fen());
-    engine.postMessage("go depth 12");
-  }
+function makeEngineMove(){
+  if(game.game_over()) return;
+  engine.postMessage("position fen "+game.fen());
+  engine.postMessage("go depth 12");
+}
 
-  function updateStatus() {
-    gameStatus.textContent =
-      game.in_checkmate() ? "Checkmate."
-      : game.in_draw() ? "Draw."
-      : game.turn() === "w" ? "Your move." : "Stockfish is thinking...";
-  }
+function updateStatus(){
+  gameStatus.textContent=
+    game.in_checkmate()?"Checkmate.":
+    game.in_draw()?"Draw.":
+    game.turn()==="w"?"Your move.":"Stockfish is thinking...";
+}
 
-  function resetGame() {
-    game.reset();
-    board.start();
-    updateStatus();
-  }
+newGameBtn.onclick=()=>{
+  game.reset();
+  board.start();
+  updateStatus();
+};
 </script>
 </body>
 </html>
