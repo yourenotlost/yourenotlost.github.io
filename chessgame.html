@@ -1,206 +1,119 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="utf-8" />
-  <title>Fred's Chess Page</title>
-  <meta name="viewport" content="width=device-width, initial-scale=1" />
+<meta charset="utf-8" />
+<title>Fred's Chess Page</title>
+<meta name="viewport" content="width=device-width, initial-scale=1" />
 
-  <!-- Chessboard CSS -->
-  <link rel="stylesheet" href="https://unpkg.com/chessboardjs@1.0.0/www/css/chessboard.css" />
+<link rel="stylesheet" href="https://unpkg.com/chessboardjs@1.0.0/www/css/chessboard.css" />
+<script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+<script src="https://unpkg.com/chess.js@1.0.0/chess.min.js"></script>
+<script src="https://unpkg.com/chessboardjs@1.0.0/www/js/chessboard.js"></script>
 
-  <!-- jQuery + Chess.js + Chessboard.js -->
-  <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
-  <script src="https://unpkg.com/chess.js@1.0.0/chess.min.js"></script>
-  <script src="https://unpkg.com/chessboardjs@1.0.0/www/js/chessboard.js"></script>
-
-  <style>
-    :root {
-      --bg-gradient: linear-gradient(135deg, #1e3a8a, #9333ea, #ec4899);
-      --card-bg: rgba(2, 6, 23, 0.9);
-      --text-main: #f8fafc;
-      --primary-btn: #22d3ee;
-      --secondary-btn: #a78bfa;
-      --correct: #22c55e;
-      --wrong: #ef4444;
-      --border: #475569;
-    }
-
-    body {
-      font-family: system-ui, sans-serif;
-      background: var(--bg-gradient);
-      color: var(--text-main);
-      display: flex;
-      justify-content: center;
-      align-items: center;
-      min-height: 100vh;
-      margin: 0;
-    }
-
-    .card {
-      background: var(--card-bg);
-      border-radius: 18px;
-      padding: 26px;
-      max-width: 460px;
-      width: 100%;
-      box-shadow: 0 25px 50px rgba(0, 0, 0, 0.5);
-      text-align: center;
-    }
-
-    img {
-      width: 100%;
-      border-radius: 12px;
-      margin-bottom: 16px;
-    }
-
-    .options {
-      display: grid;
-      gap: 8px;
-      text-align: left;
-    }
-
-    button {
-      padding: 10px 12px;
-      border-radius: 12px;
-      border: none;
-      cursor: pointer;
-      font-weight: 600;
-    }
-
-    .primary {
-      background: var(--primary-btn);
-      color: #020617;
-    }
-
-    .secondary {
-      background: var(--secondary-btn);
-      color: #020617;
-    }
-
-    .option {
-      background: #020617;
-      color: var(--text-main);
-      border: 1px solid var(--border);
-    }
-
-    .correct {
-      border-color: var(--correct);
-      background: rgba(34, 197, 94, 0.2);
-    }
-
-    .wrong {
-      border-color: var(--wrong);
-      background: rgba(239, 68, 68, 0.2);
-    }
-
-    .hidden { display: none; }
-
-    .footer {
-      margin-top: 18px;
-      font-size: 0.75rem;
-      opacity: 0.7;
-    }
-
-    .settings {
-      text-align: left;
-      margin-top: 14px;
-      font-size: 0.9rem;
-    }
-
-    .settings label {
-      display: block;
-      margin: 6px 0;
-    }
-  </style>
+<style>
+:root {
+  --bg-gradient: linear-gradient(135deg, #1e3a8a, #9333ea, #ec4899);
+  --card-bg: rgba(2, 6, 23, 0.9);
+  --text-main: #f8fafc;
+  --primary-btn: #22d3ee;
+  --secondary-btn: #a78bfa;
+  --correct: #22c55e;
+  --wrong: #ef4444;
+  --border: #475569;
+}
+body { font-family: system-ui, sans-serif; background: var(--bg-gradient); color: var(--text-main); display: flex; justify-content: center; align-items: center; min-height: 100vh; margin:0;}
+.card { background: var(--card-bg); border-radius: 18px; padding:26px; max-width:460px; width:100%; box-shadow:0 25px 50px rgba(0,0,0,0.5); text-align:center;}
+img { width:100%; border-radius:12px; margin-bottom:16px;}
+.options { display:grid; gap:8px; text-align:left; }
+button { padding:10px 12px; border-radius:12px; border:none; cursor:pointer; font-weight:600; }
+.primary { background: var(--primary-btn); color:#020617; }
+.secondary { background: var(--secondary-btn); color:#020617; }
+.option { background:#020617; color:var(--text-main); border:1px solid var(--border); }
+.correct { border-color:var(--correct); background: rgba(34,197,94,0.2); }
+.wrong { border-color:var(--wrong); background: rgba(239,68,68,0.2); }
+.hidden { display:none; }
+.footer { margin-top:18px; font-size:0.75rem; opacity:0.7; }
+.settings { text-align:left; margin-top:14px; font-size:0.9rem; }
+.settings label { display:block; margin:6px 0; }
+</style>
 </head>
-
 <body>
 <div class="card">
 
-  <!-- HOME -->
-  <div id="home">
-    <h1>Fred's Chess Opening Quiz</h1>
-    <p>
-      Identify chess openings from board positions.<br>
-      <strong>Maximum questions per quiz: 10</strong>
-    </p>
+<!-- HOME -->
+<div id="home">
+<h1>Fred's Chess Opening Quiz</h1>
+<p>Identify chess openings from board positions.<br><strong>Maximum questions per quiz: 10</strong></p>
+<div class="settings">
+<strong>Quiz Settings</strong>
+<label>Questions per quiz:<input type="number" id="questionCount" value="5" min="1" max="10"></label>
+<label><input type="checkbox" id="shuffleQuestions" checked> Shuffle questions</label>
+<label><input type="checkbox" id="shuffleOptions" checked> Shuffle answer options</label>
+<label><input type="checkbox" id="showFeedback" checked> Show feedback text</label>
+</div>
+<br>
+<button class="primary" onclick="startQuiz()">Start Quiz</button>
+<br><br>
+<button class="secondary" onclick="showOpenings()">Opening History</button>
+<br><br>
+<button class="secondary" onclick="showFacts()">Random Chess Facts</button>
+<br><br>
+<button class="secondary" onclick="startGame()">Play vs Computer</button>
+</div>
 
-    <div class="settings">
-      <strong>Quiz Settings</strong>
-      <label>
-        Questions per quiz:
-        <input type="number" id="questionCount" value="5" min="1" max="10">
-      </label>
-      <label><input type="checkbox" id="shuffleQuestions" checked> Shuffle questions</label>
-      <label><input type="checkbox" id="shuffleOptions" checked> Shuffle answer options</label>
-      <label><input type="checkbox" id="showFeedback" checked> Show feedback text</label>
-    </div>
+<!-- QUIZ -->
+<div id="quiz" class="hidden">
+<h1>Which opening is this?</h1>
+<img id="positionImage" />
+<div class="options" id="options"></div>
+<p id="answer"></p>
+<button class="primary hidden" id="nextBtn">Next</button>
+</div>
 
-    <br>
-    <button class="primary" onclick="startQuiz()">Start Quiz</button>
-    <br><br>
-    <button class="secondary" onclick="showOpenings()">Opening History</button>
-    <br><br>
-    <button class="secondary" onclick="showFacts()">Random Chess Facts</button>
-    <br><br>
-    <button class="secondary" onclick="startGame()">Play vs Computer</button>
-  </div>
+<!-- END -->
+<div id="end" class="hidden">
+<h1>Quiz Complete</h1>
+<p id="scoreText"></p>
+<p id="endMessage"></p>
+<button class="primary" onclick="startQuiz()">Play Again</button>
+<br><br>
+<button class="secondary" onclick="goHome()">Back to Menu</button>
+</div>
 
-  <!-- QUIZ -->
-  <div id="quiz" class="hidden">
-    <h1>Which opening is this?</h1>
-    <img id="positionImage" />
-    <div class="options" id="options"></div>
-    <p id="answer"></p>
-    <button class="primary hidden" id="nextBtn">Next</button>
-  </div>
+<!-- OPENINGS -->
+<div id="openings" class="hidden">
+<h1>Opening History</h1>
+<ul id="openingList"></ul>
+<p id="openingInfo"></p>
+<button class="secondary" onclick="goHome()">Back</button>
+</div>
 
-  <!-- END -->
-  <div id="end" class="hidden">
-    <h1>Quiz Complete</h1>
-    <p id="scoreText"></p>
-    <p id="endMessage"></p>
-    <button class="primary" onclick="startQuiz()">Play Again</button>
-    <br><br>
-    <button class="secondary" onclick="goHome()">Back to Menu</button>
-  </div>
+<!-- FACTS -->
+<div id="facts" class="hidden">
+<h1>Random Chess Fact</h1>
+<p id="factText"></p>
+<button class="primary" onclick="newFact()">Another fact</button>
+<br><br>
+<button class="secondary" onclick="goHome()">Back</button>
+</div>
 
-  <!-- OPENINGS -->
-  <div id="openings" class="hidden">
-    <h1>Opening History</h1>
-    <ul id="openingList"></ul>
-    <p id="openingInfo"></p>
-    <button class="secondary" onclick="goHome()">Back</button>
-  </div>
+<!-- GAME -->
+<div id="game" class="hidden">
+<h1>Play vs Stockfish</h1>
+<div id="board" style="width:100%; max-width:360px; margin:0 auto;"></div>
+<p id="gameStatus"></p>
+<button class="primary" id="newGameBtn">New Game</button>
+<br><br>
+<button class="secondary" onclick="goHome()">Back</button>
+</div>
 
-  <!-- FACTS -->
-  <div id="facts" class="hidden">
-    <h1>Random Chess Fact</h1>
-    <p id="factText"></p>
-    <button class="primary" onclick="newFact()">Another fact</button>
-    <br><br>
-    <button class="secondary" onclick="goHome()">Back</button>
-  </div>
-
-  <!-- GAME -->
-  <div id="game" class="hidden">
-    <h1>Play vs Stockfish</h1>
-    <div id="board" style="width:100%; max-width:360px; margin:0 auto;"></div>
-    <p id="gameStatus"></p>
-    <button class="primary" id="newGameBtn">New Game</button>
-    <br><br>
-    <button class="secondary" onclick="goHome()">Back</button>
-  </div>
-
-  <div class="footer">Made by Frederick Fairhurst</div>
+<div class="footer">Made by Frederick Fairhurst</div>
 </div>
 
 <script>
 /* ---------- NAV ---------- */
-const screens = ["home","quiz","end","openings","facts","game"];
-function show(id){
-  screens.forEach(s=>document.getElementById(s).classList.add("hidden"));
-  document.getElementById(id).classList.remove("hidden");
-}
+const screens=["home","quiz","end","openings","facts","game"];
+function show(id){screens.forEach(s=>document.getElementById(s).classList.add("hidden")); document.getElementById(id).classList.remove("hidden");}
 function goHome(){ show("home"); }
 
 /* ---------- QUIZ ---------- */
@@ -214,30 +127,30 @@ function getSettings(){
 }
 
 const quizData = [
-  { image:"alapin sicilian.png", correct:"Alapin Sicilian",
-    options:["Alapin Sicilian","French Defence","Benko Gambit","Najdorf Sicilian"]},
-  { image:"caro kann.png", correct:"Caro-Kann Defence",
-    options:["Caro-Kann Defence","French Defence","Scandinavian Defence","Pirc Defence"]},
-  { image:"catalan.png", correct:"Catalan Opening",
-    options:["Catalan Opening","Slav Defence","Nimzo-Indian","Queen's Gambit Declined"]},
-  { image:"englund gambit.png", correct:"Englund Gambit",
-    options:["Englund Gambit","London System","Budapest Gambit","Queen's Gambit"]},
-  { image:"french defence.png", correct:"French Defence",
-    options:["French Defence","Caro-Kann Defence","Scandinavian Defence","Modern Defence"]},
-  { image:"kings indian attack.png", correct:"King's Indian Attack",
-    options:["King's Indian Attack","King's Indian Defence","Pirc Defence","English Opening"]},
-  { image:"london system.png", correct:"London System",
-    options:["London System","Colle System","Catalan Opening","Trompowsky Attack"]},
-  { image:"modern scandinavian.png", correct:"Modern Scandinavian",
-    options:["Modern Scandinavian","Classical Scandinavian","Caro-Kann Defence","Alekhine Defence"]},
-  { image:"scandinavian.png", correct:"Scandinavian Defence",
-    options:["Scandinavian Defence","French Defence","Pirc Defence","Alekhine Defence"]},
-  { image:"two knights caro.png", correct:"Two Knights Caro-Kann",
-    options:["Two Knights Caro-Kann","Advance Caro-Kann","Fantasy Variation","Panov Attack"]}
+  { image: "alapin sicilian.png", correct: "Alapin Sicilian",
+    options: ["Alapin Sicilian","French Defence","Benko Gambit","Najdorf Sicilian"]},
+  { image: "caro kann.png", correct: "Caro-Kann Defence",
+    options: ["Caro-Kann Defence","French Defence","Scandinavian Defence","Pirc Defence"]},
+  { image: "catalan.png", correct: "Catalan Opening",
+    options: ["Catalan Opening","Slav Defence","Nimzo-Indian","Queen's Gambit Declined"]},
+  { image: "englund gambit.png", correct: "Englund Gambit",
+    options: ["Englund Gambit","London System","Budapest Gambit","Queen's Gambit"]},
+  { image: "french defence.png", correct: "French Defence",
+    options: ["French Defence","Caro-Kann Defence","Scandinavian Defence","Modern Defence"]},
+  { image: "kings indian attack.png", correct: "King's Indian Attack",
+    options: ["King's Indian Attack","King's Indian Defence","Pirc Defence","English Opening"]},
+  { image: "london system.png", correct: "London System",
+    options: ["London System","Colle System","Catalan Opening","Trompowsky Attack"]},
+  { image: "modern scandinavian.png", correct: "Modern Scandinavian",
+    options: ["Modern Scandinavian","Classical Scandinavian","Caro-Kann Defence","Alekhine Defence"]},
+  { image: "scandinavian.png", correct: "Scandinavian Defence",
+    options: ["Scandinavian Defence","French Defence","Pirc Defence","Alekhine Defence"]},
+  { image: "two knights caro.png", correct: "Two Knights Caro-Kann",
+    options: ["Two Knights Caro-Kann","Advance Caro-Kann","Fantasy Variation","Panov Attack"]}
 ];
 
 let questions=[], current=0, score=0, settings={};
-const shuffle = a => [...a].sort(()=>Math.random()-0.5);
+const shuffle=a=>[...a].sort(()=>Math.random()-0.5);
 
 function startQuiz(){
   settings=getSettings();
@@ -253,21 +166,19 @@ function loadQuestion(){
   options.innerHTML="";
   answer.textContent="";
   nextBtn.classList.add("hidden");
-
   (settings.shuffleOptions?shuffle(q.options):q.options).forEach(opt=>{
     const b=document.createElement("button");
-    b.className="option";
-    b.textContent=opt;
+    b.className="option"; b.textContent=opt;
     b.onclick=()=>selectAnswer(b,opt);
     options.appendChild(b);
   });
 }
 
-function selectAnswer(btn,selected){
+function selectAnswer(btn, selected){
   const q=questions[current];
   document.querySelectorAll(".option").forEach(b=>{
     b.disabled=true;
-    if(b.textContent===q.correct) b.classList.add("correct");
+    if(b.textContent===q.correct)b.classList.add("correct");
   });
   if(selected===q.correct) score++; else btn.classList.add("wrong");
   if(settings.showFeedback)
@@ -278,7 +189,7 @@ function selectAnswer(btn,selected){
 nextBtn.onclick=()=>{
   current++;
   current<questions.length ? loadQuestion() : endQuiz();
-};
+}
 
 function endQuiz(){
   show("end");
@@ -291,22 +202,21 @@ function endQuiz(){
 
 /* ---------- OPENINGS ---------- */
 const openingInfoData={
-  "Alapin Sicilian":"Introduced by Semyon Alapin.",
-  "Caro-Kann Defence":"Named after Caro and Kann.",
-  "Catalan Opening":"Popularised in the 1920s.",
-  "Englund Gambit":"A risky gambit.",
-  "French Defence":"One of the oldest openings.",
-  "King's Indian Attack":"Used by Fischer.",
-  "London System":"Popular system opening.",
-  "Modern Scandinavian":"Dynamic variation.",
+  "Alapin Sicilian":"Introduced by Semyon Alapin in the late 19th century.",
+  "Caro-Kann Defence":"Named after Horatio Caro and Marcus Kann.",
+  "Catalan Opening":"Popularised in elite tournaments in the 1920s.",
+  "Englund Gambit":"An unsound but tricky gambit from the early 20th century.",
+  "French Defence":"One of the oldest recorded chess openings.",
+  "King's Indian Attack":"A flexible setup used by Fischer.",
+  "London System":"System-based opening popular at all levels.",
+  "Modern Scandinavian":"A dynamic modern interpretation of 1...d5.",
   "Scandinavian Defence":"Played since the 15th century.",
-  "Two Knights Caro-Kann":"Aggressive line."
+  "Two Knights Caro-Kann":"An aggressive response to the Caro-Kann."
 };
 
 function showOpenings(){
   show("openings");
-  openingList.innerHTML="";
-  openingInfo.textContent="";
+  openingList.innerHTML=""; openingInfo.textContent="";
   for(const name in openingInfoData){
     const li=document.createElement("li");
     li.textContent=name;
@@ -317,43 +227,50 @@ function showOpenings(){
 
 /* ---------- FACTS ---------- */
 const facts=[
-  "The longest official game lasted 269 moves.",
-  "There are more chess games than atoms.",
-  "Checkmate comes from 'Shah Mat'.",
-  "Chess was once banned.",
-  "Chess engines date to the 1950s."
+  "The longest official chess game lasted 269 moves.",
+  "There are more possible chess games than atoms in the observable universe.",
+  "Checkmate comes from the Persian phrase 'Shah Mat'.",
+  "Chess was banned in some countries during the Middle Ages.",
+  "The first chess engines appeared in the 1950s."
 ];
 
 function showFacts(){ show("facts"); newFact(); }
 function newFact(){ factText.textContent=facts[Math.floor(Math.random()*facts.length)]; }
 
-/* ---------- STOCKFISH GAME (FIXED) ---------- */
+/* ---------- STOCKFISH GAME (WORKING) ---------- */
 let board=null, game=new Chess(), engine=null;
 const gameStatus=document.getElementById("gameStatus");
 
 function startGame(){
   show("game");
+  // delay board creation until visible
+  requestAnimationFrame(()=>{
+    requestAnimationFrame(()=>{
+      if(!engine){
+        engine=new Worker("stockfish.js");
+        engine.postMessage("uci");
+        engine.onmessage=e=>{
+          if(e.data.startsWith("bestmove") && !game.game_over()){
+            const m=e.data.split(" ")[1];
+            game.move({from:m.slice(0,2), to:m.slice(2,4), promotion:"q"});
+            board.position(game.fen());
+            updateStatus();
+          }
+        };
+      }
 
-  setTimeout(()=>{   // 🔑 critical fix
-    if(!engine){
-      engine=new Worker("stockfish.js");
-      engine.postMessage("uci");
-      engine.onmessage=e=>{
-        if(e.data.startsWith("bestmove") && !game.game_over()){
-          const m=e.data.split(" ")[1];
-          game.move({from:m.slice(0,2),to:m.slice(2,4),promotion:"q"});
-          board.position(game.fen());
-          updateStatus();
-        }
-      };
-    }
+      game.reset();
+      if(board) board.destroy();
 
-    game.reset();
-    if(board) board.destroy();
+      board=Chessboard("board",{
+        draggable:true,
+        position:"start",
+        onDrop:onDrop
+      });
 
-    board=Chessboard("board",{draggable:true,position:"start",onDrop});
-    updateStatus();
-  },0);
+      updateStatus();
+    });
+  });
 }
 
 function onDrop(source,target){
@@ -376,11 +293,7 @@ function updateStatus(){
     game.turn()==="w"?"Your move.":"Stockfish is thinking...";
 }
 
-newGameBtn.onclick=()=>{
-  game.reset();
-  board.start();
-  updateStatus();
-};
+newGameBtn.onclick=startGame;
 </script>
 </body>
 </html>
