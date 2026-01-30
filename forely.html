@@ -1,7 +1,9 @@
 <!DOCTYPE html>
-<html>
+<html lang="en">
 <head>
+  <meta charset="UTF-8">
   <title>For Ely 💛</title>
+
   <style>
     body {
       font-family: Arial, sans-serif;
@@ -9,24 +11,39 @@
       text-align: center;
       padding: 60px;
     }
+
+    h1 {
+      font-size: 32px;
+      margin-bottom: 20px;
+    }
+
     button {
       padding: 15px 25px;
       font-size: 18px;
       border-radius: 12px;
       border: none;
       cursor: pointer;
+      background: #ffd6e8;
+      transition: transform 0.05s ease;
     }
+
+    button:hover {
+      transform: scale(1.05);
+    }
+
     #message {
       margin-top: 30px;
       font-size: 20px;
       max-width: 700px;
       margin-left: auto;
       margin-right: auto;
+      line-height: 1.6;
+      white-space: pre-line;
     }
   </style>
 </head>
-<body>
 
+<body>
   <h1>Click for something happy 💌</h1>
   <button onclick="newMessage()">Click me</button>
 
@@ -34,7 +51,7 @@
 
   <script>
     const messages = [
-         "its a long day, but tomorrow hasnt happened yet. you can shape that however you want!",
+      "its a long day, but tomorrow hasnt happened yet. you can shape that however you want!",
 
       "hmm, cats! they're a reason to smile, they're so cute!",
 
@@ -62,8 +79,8 @@
 
       "ik I said food but chocolate. yeah. you ever been sad AFTER eating chocolate? or AFTER drinking choccy milk? nuh uh! Well if u have then text me and ill make another list",
 
-      "ik its only 15 things. but i wanna make u smile. I could sit here forever listing reasons why you're amazing, reasons why I love you, how you're perfect just the way you are. but ill end with this. smile because you're you. you are brilliant, talented, beautiful, and you care and love perfectly. I love you Ely, and nothing, not distance not time not anyone, not anything, nothing will change that. I love you, and I want you to know youre amazing."
-    
+      "ik its only 15 things. but i wanna make u smile. I could sit here forever listing reasons why you're amazing, reasons why I love you, how you're perfect just the way you are. but ill end with this. smile because you're you. you are brilliant, talented, beautiful, and you care and love perfectly. I love you Ely, and nothing, not distance not time not anyone, not anything, nothing will change that. I love you, and I want you to know youre amazing.",
+
       "You deserve to smile today.",
       "I’m proud of you — always.",
       "You make my world brighter just by existing.",
@@ -81,6 +98,5 @@
       document.getElementById("message").innerText = messages[random];
     }
   </script>
-
 </body>
 </html>
