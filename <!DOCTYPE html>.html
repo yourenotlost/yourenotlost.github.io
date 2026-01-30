@@ -1,0 +1,56 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <title>For Ely 💛</title>
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      background: #fff7fb;
+      text-align: center;
+      padding: 60px;
+    }
+    button {
+      padding: 15px 25px;
+      font-size: 18px;
+      border-radius: 12px;
+      border: none;
+      cursor: pointer;
+    }
+    #message {
+      margin-top: 30px;
+      font-size: 20px;
+      max-width: 700px;
+      margin-left: auto;
+      margin-right: auto;
+    }
+  </style>
+</head>
+<body>
+
+  <h1>Click for something happy 💌</h1>
+  <button onclick="newMessage()">Click me</button>
+
+  <div id="message"></div>
+
+  <script>
+    const messages = [
+      "You deserve to smile today.",
+      "I’m proud of you — always.",
+      "You make my world brighter just by existing.",
+      "Your kindness means more than you realize.",
+      "You made me happy just by being you.",
+      "I love how caring and thoughtful you are.",
+      "You’ve come so far, and I admire you.",
+      "You matter more than you think.",
+      "Your smile is my favorite.",
+      "I’m lucky to have you in my life."
+    ];
+
+    function newMessage() {
+      const random = Math.floor(Math.random() * messages.length);
+      document.getElementById("message").innerText = messages[random];
+    }
+  </script>
+
+</body>
+</html>
