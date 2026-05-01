@@ -1,0 +1,460 @@
+import random
+import os
+from collections import defaultdict
+
+
+# ==========================
+# DATA STRUCTURES
+# ==========================
+
+class OpeningNode:
+    """
+    Represents one position in an opening tree.
+    Each node stores:
+    - move leading into it (like "e4", "Nf3")
+    - children nodes (next moves)
+    - how many times this position occurred in games
+    - plans and mistakes (text notes)
+    """
+
+    def __init__(self, move=None):
+        self.move = move
+        self.children = {}  # move -> OpeningNode
+        self.frequency = 0
+
+        # Optional educational content
+        self.plans = []
+        self.mistakes = []
+
+    def add_child(self, move):
+        """Adds a child node if it doesn't exist yet."""
+        if move not in self.children:
+            self.children[move] = OpeningNode(move)
+        return self.children[move]
+
+    def get_most_common_moves(self, limit=5):
+        """Returns the most common continuation moves from this position."""
+        sorted_children = sorted(
+            self.children.values(),
+            key=lambda node: node.frequency,
+            reverse=True
+        )
+        return sorted_children[:limit]
+
+
+class OpeningTree:
+    """
+    Stores the entire opening database as a tree.
+    Root node represents the starting position.
+    """
+
+    def __init__(self):
+        self.root = OpeningNode("START")
+
+    def insert_game(self, moves):
+        """
+        Inserts a list of moves into the tree.
+        Example: ["e4", "e5", "Nf3", "Nc6"]
+        """
+        current = self.root
+        current.frequency += 1
+
+        for move in moves:
+            current = current.add_child(move)
+            current.frequency += 1
+
+    def find_node(self, moves):
+        """
+        Finds the node representing the position after a sequence of moves.
+        Returns None if sequence not found.
+        """
+        current = self.root
+        for move in moves:
+            if move not in current.children:
+                return None
+            current = current.children[move]
+        return current
+
+
+# ==========================
+# PGN LOADING
+# ==========================
+
+def clean_move(move):
+    """
+    Removes PGN symbols like:
+    - move numbers "1."
+    - check "+"
+    - checkmate "#"
+    - annotations "!", "?"
+    """
+    move = move.strip()
+
+    # Ignore move numbers
+    if "." in move:
+        return None
+
+    # Ignore game results
+    if move in ["1-0", "0-1", "1/2-1/2", "*"]:
+        return None
+
+    # Remove punctuation symbols
+    for ch in ["+", "#", "!", "?", "!!", "??", "!?"]:
+        move = move.replace(ch, "")
+
+    return move.strip()
+
+
+def load_pgn_file(filepath):
+    """
+    Loads moves from a PGN file.
+    Returns list of games, each game is a list of moves.
+    """
+
+    games = []
+    current_game_moves = []
+
+    with open(filepath, "r", encoding="utf-8") as f:
+        for line in f:
+            line = line.strip()
+
+            # Ignore PGN metadata tags like [Event "..."]
+            if line.startswith("["):
+                continue
+
+            # Empty line usually ends game
+            if line == "":
+                if current_game_moves:
+                    games.append(current_game_moves)
+                    current_game_moves = []
+                continue
+
+            # Split line into tokens
+            tokens = line.split()
+
+            for token in tokens:
+                move = clean_move(token)
+                if move:
+                    current_game_moves.append(move)
+
+    if current_game_moves:
+        games.append(current_game_moves)
+
+    return games
+
+
+# ==========================
+# EDUCATIONAL DATABASE (PLANS / MISTAKES)
+# ==========================
+
+def attach_opening_notes(tree):
+    """
+    Adds plans and common mistakes to certain known opening lines.
+    This is not automatic chess analysis, it's a knowledge database.
+    """
+
+    notes = {
+        ("e4", "e5", "Nf3", "Nc6", "Bb5"): {
+            "name": "Ruy Lopez",
+            "plans": [
+                "White often aims to build a strong centre with c3 and d4.",
+                "White may play Re1 to support e4 and prepare d4.",
+                "Black often defends the e5 pawn and fights for the centre."
+            ],
+            "mistakes": [
+                "Developing the queen too early can lose tempo.",
+                "Playing h3/h6 too early may waste moves in the opening.",
+                "Ignoring central control can lead to a cramped position."
+            ]
+        },
+
+        ("e4", "c5"): {
+            "name": "Sicilian Defence",
+            "plans": [
+                "Black fights for the centre indirectly using the c-file.",
+                "White often aims for d4 to open the centre quickly.",
+                "Black typically develops knights to f6 and d6."
+            ],
+            "mistakes": [
+                "White delaying d4 too long can allow Black to equalise easily.",
+                "Black failing to develop quickly can lead to a dangerous attack.",
+                "Moving the same piece repeatedly wastes tempo."
+            ]
+        },
+
+        ("d4", "d5", "c4"): {
+            "name": "Queen's Gambit",
+            "plans": [
+                "White offers the c-pawn to gain central control.",
+                "White usually aims for Nc3 and developing pieces naturally.",
+                "Black can accept or decline the gambit depending on style."
+            ],
+            "mistakes": [
+                "Accepting the gambit but not defending the pawn can lose material.",
+                "White overextending the centre too early can be punished.",
+                "Playing too passively gives White long-term space advantage."
+            ]
+        },
+
+        ("e4", "e5", "Nf3", "d6"): {
+            "name": "Philidor Defence",
+            "plans": [
+                "Black aims for a solid but slightly passive setup.",
+                "White often pushes d4 to take space advantage.",
+                "Black may later strike back with ...f5 or ...c5."
+            ],
+            "mistakes": [
+                "Black being too passive can allow White a strong centre.",
+                "White attacking too quickly without development can backfire."
+            ]
+        }
+    }
+
+    for move_sequence, info in notes.items():
+        node = tree.find_node(list(move_sequence))
+        if node:
+            node.plans = info["plans"]
+            node.mistakes = info["mistakes"]
+
+
+# ==========================
+# EXPLORER MODE (TREE NAVIGATION)
+# ==========================
+
+def explorer_mode(tree):
+    """
+    Allows user to explore the opening tree interactively.
+    Uses recursion to keep exploring deeper positions.
+    """
+
+    print("\n==============================")
+    print("   CHESS OPENING EXPLORER")
+    print("==============================\n")
+    print("Type moves like: e4, Nf3, Bb5, d4, c5")
+    print("Type 'back' to go back one move.")
+    print("Type 'exit' to return to main menu.\n")
+
+    move_history = []
+    current_node = tree.root
+
+    while True:
+        print("\n----------------------------------")
+        print("Current line:", " ".join(move_history) if move_history else "(start position)")
+        print("Games reaching this position:", current_node.frequency)
+
+        common = current_node.get_most_common_moves(limit=6)
+
+        if not common:
+            print("No more moves stored from this position.")
+        else:
+            print("\nMost common continuations:")
+            for i, child in enumerate(common, start=1):
+                print(f"  {i}. {child.move}  ({child.frequency} games)")
+
+        if current_node.plans:
+            print("\nTypical plans:")
+            for plan in current_node.plans:
+                print(" -", plan)
+
+        if current_node.mistakes:
+            print("\nCommon mistakes:")
+            for mistake in current_node.mistakes:
+                print(" -", mistake)
+
+        user = input("\nEnter move: ").strip()
+
+        if user.lower() == "exit":
+            break
+
+        if user.lower() == "back":
+            if move_history:
+                move_history.pop()
+                current_node = tree.find_node(move_history) if move_history else tree.root
+            else:
+                print("You are already at the start.")
+            continue
+
+        if user not in current_node.children:
+            print("Move not found in database.")
+            continue
+
+        move_history.append(user)
+        current_node = current_node.children[user]
+
+
+# ==========================
+# QUIZ / TRAINING MODE
+# ==========================
+
+def gather_positions(node, history=None, depth_limit=12):
+    """
+    Recursively gathers all possible opening positions from the tree.
+    Returns a list of tuples: (move_sequence, node)
+    """
+
+    if history is None:
+        history = []
+
+    positions = [(history, node)]
+
+    if len(history) >= depth_limit:
+        return positions
+
+    for child_move, child_node in node.children.items():
+        positions.extend(gather_positions(child_node, history + [child_move], depth_limit))
+
+    return positions
+
+
+def quiz_mode(tree):
+    """
+    Quiz mode:
+    - shows user an opening sequence
+    - asks for best continuation based on frequency
+    """
+
+    print("\n==============================")
+    print("     OPENING QUIZ MODE")
+    print("==============================\n")
+
+    all_positions = gather_positions(tree.root, depth_limit=10)
+
+    # Filter out positions with at least 2 possible continuations
+    quiz_positions = [p for p in all_positions if len(p[1].children) >= 2]
+
+    if not quiz_positions:
+        print("Not enough opening data to run quiz.")
+        return
+
+    score = 0
+    rounds = 5
+
+    for round_num in range(1, rounds + 1):
+        seq, node = random.choice(quiz_positions)
+
+        print("\n----------------------------------")
+        print(f"Round {round_num}/{rounds}")
+        print("Opening line so far:", " ".join(seq) if seq else "(start position)")
+
+        common_moves = node.get_most_common_moves(limit=4)
+
+        if not common_moves:
+            print("No continuations available.")
+            continue
+
+        # Correct answer is the most frequent child
+        correct = common_moves[0].move
+
+        options = [child.move for child in common_moves]
+        random.shuffle(options)
+
+        print("\nChoose the best continuation:")
+        for i, move in enumerate(options, start=1):
+            print(f"  {i}. {move}")
+
+        try:
+            choice = int(input("\nYour choice (number): ").strip())
+            user_move = options[choice - 1]
+        except:
+            print("Invalid input. Skipping round.")
+            continue
+
+        if user_move == correct:
+            print("Correct!")
+            score += 1
+        else:
+            print("Wrong.")
+            print("Most common move was:", correct)
+
+    print("\n==============================")
+    print("QUIZ COMPLETE")
+    print("==============================")
+    print("Final score:", score, "/", rounds)
+    print()
+
+
+# ==========================
+# DATABASE SETUP
+# ==========================
+
+def build_sample_database(tree):
+    """
+    Inserts a set of example master opening lines.
+    This is useful if user has no PGN file.
+    """
+
+    sample_games = [
+        ["e4", "e5", "Nf3", "Nc6", "Bb5", "a6", "Ba4", "Nf6"],
+        ["e4", "e5", "Nf3", "Nc6", "Bc4", "Bc5", "c3", "Nf6"],
+        ["e4", "c5", "Nf3", "d6", "d4", "cxd4", "Nxd4", "Nf6"],
+        ["d4", "d5", "c4", "e6", "Nc3", "Nf6", "Bg5", "Be7"],
+        ["d4", "Nf6", "c4", "g6", "Nc3", "Bg7"],
+        ["e4", "e5", "Nf3", "d6", "d4", "Nf6", "Nc3"],
+        ["e4", "c5", "Nf3", "Nc6", "d4", "cxd4", "Nxd4"],
+        ["e4", "e5", "Nf3", "Nc6", "Bb5", "Nf6"],
+        ["e4", "e5", "Nf3", "Nc6", "Bb5", "a6"],
+        ["e4", "e5", "Nf3", "Nc6", "Bb5", "a6", "Ba4"],
+    ]
+
+    for game in sample_games:
+        tree.insert_game(game)
+
+
+# ==========================
+# MAIN MENU
+# ==========================
+
+def main():
+    tree = OpeningTree()
+
+    print("====================================")
+    print(" CHESS OPENING EXPLORER + TRAINER")
+    print("====================================\n")
+
+    print("Loading database...")
+
+    # If user has a PGN file, load it
+    pgn_path = "games.pgn"
+
+    if os.path.exists(pgn_path):
+        print("PGN file found: games.pgn")
+        games = load_pgn_file(pgn_path)
+        print("Games loaded:", len(games))
+
+        for g in games:
+            tree.insert_game(g)
+
+    else:
+        print("No PGN file found.")
+        print("Using built-in sample opening database instead.")
+        build_sample_database(tree)
+
+    # Attach plans/mistakes to known openings
+    attach_opening_notes(tree)
+
+    while True:
+        print("\n==============================")
+        print("MAIN MENU")
+        print("==============================")
+        print("1. Explore openings")
+        print("2. Quiz mode")
+        print("3. Exit")
+
+        choice = input("\nEnter choice: ").strip()
+
+        if choice == "1":
+            explorer_mode(tree)
+
+        elif choice == "2":
+            quiz_mode(tree)
+
+        elif choice == "3":
+            print("Goodbye.")
+            break
+
+        else:
+            print("Invalid choice.")
+
+
+if __name__ == "__main__":
+    main()
